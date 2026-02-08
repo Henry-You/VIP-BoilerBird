@@ -12,11 +12,12 @@ Scilab:
 Much thanks goes to these individuals. It has been converted to Python by
 Abraham Lee.
 """
-#hello
+
 import numpy as np
 from scipy import spatial
 from scipy import stats
 from scipy import linalg
+from scipy.stats import qmc
 from numpy import ma
 
 from warnings import warn
@@ -328,3 +329,32 @@ def _lhsmu(N, samples=None, corr=None, randomstate=None, M=5):
             l_pos = rank == l
             H[l_pos] = randomstate.uniform(low, high, size=N)
     return H
+
+# BoilerBird application
+
+# establish parameters
+numberDimensions = 3 # quantity parameters
+numberSamples = 10 # quantity samples to generate
+maxFlappingAngle = (20, 60) # range in degrees
+maxPitchAngle = (5, 35) # range in degrees
+strouhalNumber = (0.2, 0.4) # range for dimensionless value
+parameterRanges = [maxFlappingAngle, maxPitchAngle, strouhalNumber] # list of tuples for parameter ranges
+
+# generation of samples using Latin Hypercube Sampling
+initSamples = lhs(numberDimensions, samples = numberSamples)
+
+# scale samples
+# view documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
+lhsSampler = qmc.LatinHypercube(d = numberDimensions) # set up sampler
+#genSample = lhsSampler.random(n = numberSamples) # generate sample
+#print(genSample)
+
+lowerBounds = [maxFlappingAngle[0], maxPitchAngle[0], strouhalNumber[0]]
+upperBounds = [maxFlappingAngle[1], maxPitchAngle[1], strouhalNumber[1]]
+updateSampleRange = qmc.scale(initSamples, lowerBounds, upperBounds)
+
+finalSamples = updateSampleRange
+
+# output results
+print("Result for Latin Hypercube Sampling:")
+print(finalSamples)
