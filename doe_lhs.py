@@ -332,35 +332,47 @@ def _lhsmu(N, samples=None, corr=None, randomstate=None, M=5):
 
 # BoilerBird application
 
-# establish parameters
-# conditions
-numberDimensions = 3 # quantity parameters
-numberSamples = 15 # quantity samples to generate
-setCriterion = "centermaximin" # criterion
-numberIterations = 1000 # number iterations
+def boilerBird_lhs_application():
+    # establish parameters
+    # conditions
+    numberDimensions = 3 # quantity parameters
+    numberSamples = 15 # quantity samples to generate
+    setCriterion = "centermaximin" # criterion
+    numberIterations = 1000 # number iterations
 
-# quantitative parameters
-maxFlappingAngle = (20, 60) # range in degrees
-maxPitchAngle = (5, 35) # range in degrees
-strouhalNumber = (0.2, 0.4) # range for dimensionless value
+    # quantitative parameters
+    maxFlappingAngle = (20, 60) # range in degrees
+    maxPitchAngle = (5, 35) # range in degrees
+    strouhalNumber = (0.2, 0.4) # range for dimensionless value
 
-parameterRanges = [maxFlappingAngle, maxPitchAngle, strouhalNumber] # list of tuples for parameter ranges
+    parameterRanges = [maxFlappingAngle, maxPitchAngle, strouhalNumber] # list of tuples for parameter ranges
 
-# generation of samples using Latin Hypercube Sampling
-initSamples = lhs(numberDimensions, samples = numberSamples, criterion = setCriterion, iterations = numberIterations)
+    # generation of samples using Latin Hypercube Sampling
+    initSamples = lhs(numberDimensions, samples = numberSamples, criterion = setCriterion, iterations = numberIterations)
 
-# scale samples
-# view documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
-lhsSampler = qmc.LatinHypercube(d = numberDimensions) # set up sampler
-#genSample = lhsSampler.random(n = numberSamples) # generate sample
-#print(genSample)
+    # scale samples
+    # view documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
+    lhsSampler = qmc.LatinHypercube(d = numberDimensions) # set up sampler
+    #genSample = lhsSampler.random(n = numberSamples) # generate sample
+    #print(genSample)
 
-lowerBounds = [maxFlappingAngle[0], maxPitchAngle[0], strouhalNumber[0]]
-upperBounds = [maxFlappingAngle[1], maxPitchAngle[1], strouhalNumber[1]]
-updateSampleRange = qmc.scale(initSamples, lowerBounds, upperBounds)
+    lowerBounds = [maxFlappingAngle[0], maxPitchAngle[0], strouhalNumber[0]]
+    upperBounds = [maxFlappingAngle[1], maxPitchAngle[1], strouhalNumber[1]]
+    updateSampleRange = qmc.scale(initSamples, lowerBounds, upperBounds)
 
-finalSamples = updateSampleRange
+    finalSamples = updateSampleRange
+
+    return finalSamples
 
 # output results
-print("Result for Latin Hypercube Sampling:")
-print(finalSamples)
+print("Results for Latin Hypercube Sampling:")
+
+# DoE for training
+print("Design of Experiments for Training:")
+training_DoE = boilerBird_lhs_application()
+print(training_DoE)
+
+# DoE for testing
+print("Design of Experiments for Testing:")
+testingDoE = boilerBird_lhs_application()
+print(testingDoE)
