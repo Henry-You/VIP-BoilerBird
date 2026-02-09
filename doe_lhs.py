@@ -333,15 +333,21 @@ def _lhsmu(N, samples=None, corr=None, randomstate=None, M=5):
 # BoilerBird application
 
 # establish parameters
+# conditions
 numberDimensions = 3 # quantity parameters
-numberSamples = 10 # quantity samples to generate
+numberSamples = 15 # quantity samples to generate
+setCriterion = "centermaximin" # criterion
+numberIterations = 1000 # number iterations
+
+# quantitative parameters
 maxFlappingAngle = (20, 60) # range in degrees
 maxPitchAngle = (5, 35) # range in degrees
 strouhalNumber = (0.2, 0.4) # range for dimensionless value
+
 parameterRanges = [maxFlappingAngle, maxPitchAngle, strouhalNumber] # list of tuples for parameter ranges
 
 # generation of samples using Latin Hypercube Sampling
-initSamples = lhs(numberDimensions, samples = numberSamples)
+initSamples = lhs(numberDimensions, samples = numberSamples, criterion = setCriterion, iterations = numberIterations)
 
 # scale samples
 # view documentation: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
