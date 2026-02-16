@@ -6,12 +6,12 @@ from scipy.stats import qmc
 from numpy import ma
 
 # reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html
-def boilerBird_lhs_application(numberDimensions, random_base_val):
-    sampler = qmc.Sobol(d = numberDimensions, scramble = True)
+def boilerBird_lhs_application(numberDimensions, random_base_val, scramble_status):
+    sampler = qmc.Sobol(d = numberDimensions, scramble = scramble_status)
     sample_result = sampler.random_base2(random_base_val)
 
     return sample_result
 
-test = boilerBird_lhs_application(5, 5)
+test = boilerBird_lhs_application(5, 5, False)
 print("Result:")
 print(test)
