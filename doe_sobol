@@ -1,1 +1,17 @@
+import numpy as np
+from scipy import spatial
+from scipy import stats
+from scipy import linalg
+from scipy.stats import qmc
+from numpy import ma
 
+# reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html
+def boilerBird_lhs_application(numberDimensions, random_base_val):
+    sampler = qmc.Sobol(d = numberDimensions, scramble = True)
+    sample_result = sampler.random_base2(random_base_val)
+
+    return sample_result
+
+test = boilerBird_lhs_application(5, 5)
+print("Result:")
+print(test)
