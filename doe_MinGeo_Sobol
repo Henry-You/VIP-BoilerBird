@@ -1,0 +1,144 @@
+import matplotlib.pyplot as plt
+import math
+from mpl_toolkits.mplot3d import Axes3D
+
+import numpy as np
+from scipy import spatial
+from scipy import stats
+from scipy import linalg
+from scipy.stats import qmc
+from numpy import ma
+
+from warnings import warn
+
+geometry_bounds = [
+    (0.4, 0.63),  # wingSpan
+    (0.4, 0.6),   # Taper
+    (0, 15)       # Sweep
+]
+n_geometries = 6
+n_train = math.floor(0.7*n_geometries)
+n_test = n_geometries - n_train
+
+kinematic_bounds = [
+    (20, 60),     # maxFlappingAngle
+    (5, 35),      # maxPitchAngle
+]
+n_kinematics = 16
+test = []
+
+
+#GEOMETRY SWEEP
+sobol_sampler = qmc.Sobol(d=len(geometry_bounds), scramble=True, seed=42)
+initSamples = sobol_sampler.random(n_geometries)
+
+geo_l_bounds = [b[0] for b in geometry_bounds]
+geo_u_bounds = [b[1] for b in geometry_bounds]
+
+geometries = qmc.scale(initSamples, geo_l_bounds, geo_u_bounds)
+
+#RANDOM DIVISION INTO TRAINING AND TESTING
+rng = np.random.default_rng(42)
+rng.shuffle(geometries)
+
+geometries_train = geometries[:n_train]
+geometries_test  = geometries[n_train:n_train+n_test]
+
+#KINEMAITCS SWEEP
+sobol_sampler = qmc.Sobol(d=len(kinematic_bounds), scramble=True, seed=42)
+kin_unit = sobol_sampler.random(n_kinematics)
+kin_l_bounds = [b[0] for b in kinematic_bounds]
+kin_u_bounds = [b[1] for b in kinematic_bounds]
+
+kinematics_plan = qmc.scale(kin_unit, kin_l_bounds, kin_u_bounds)
+
+# Training set
+train_samples = []
+for geom in geometries_train:
+    for kin in kinematics_plan:
+        combined = np.concatenate((geom, kin))
+        train_samples.append(combined)
+
+# Testing set
+test_samples = []
+for geom in geometries_test:
+    for kin in kinematics_plan:
+        combined = np.concatenate((geom, kin))
+        test_samples.append(combined)
+
+train_samples = np.array(train_samples)
+test_samples = np.array(test_samples)
+
+print("Training Geometries:")
+print(geometries_train)
+
+print("Testing Geometries:")
+print(geometries_test)
+
+
+print('Kinematic points:')
+print(kinematics_plan)
+#Geometric Space
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+
+# Training geometries
+ax.scatter(
+    geometries_train[:, 0],
+    geometries_train[:, 1],
+    geometries_train[:, 2],
+    marker='o',
+    label='Training'
+)
+
+# Testing geometries
+ax.scatter(
+    geometries_test[:, 0],
+    geometries_test[:, 1],
+    geometries_test[:, 2],
+    marker='^',
+    label='Testing'
+)
+
+ax.set_xlabel('Wing Span')
+ax.set_ylabel('Taper Ratio')
+ax.set_zlabel('Sweep (deg)')
+ax.set_title('Geometric Design Space')
+
+ax.legend()
+plt.show()
+
+#Kinematic space
+plt.figure()
+
+plt.scatter(
+    kinematics_plan[:, 0],
+    kinematics_plan[:, 1]
+)
+
+plt.xlabel('Max Flapping Angle (deg)')
+plt.ylabel('Max Pitch Angle (deg)')
+plt.title('Kinematic Design Space (Sobol)')
+
+plt.grid(True)
+plt.show()
+
+
+#geometries = Boilerbird_sobol(geometry_bounds, n_geometries)
+#If not planning on adding more geometry, use LHS
+#Kfore - Run cross-validation, or just a new testing matrix (ideally)
+#Can remove shell, talk about 3D print new shell with Tom
+
+#1 LHS plan for 10 geometries, 7 LHS wings for training, 3 LHS for testing, entire SOBOL sweep for kinematics (can use the same sobol plan)
+
+#for geom in geometries:
+    #kinematics = Boilerbird_sobol(kinematic_bounds, n_kinematics)
+
+    #for kin in kinematics:
+        #combined = np.concatenate((kin, geom))
+        #test.append(combined)
+
+#test = np.array(test)
+
+#print("Result:")
+#print(test)
